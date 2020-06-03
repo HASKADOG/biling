@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+<div class="container-md">
+	<div class="row ad-wrap-wrap">
+		<div class="col-md-4 add-wrap">
+			<form action='' method="post" novalidate>
+                {{ form.hidden_tag() }}
+				{{ form.number.label }}
+                {{ form.number(size=32, class='input') }}
+				{{ form.is_arch.label }}
+                {{ form.is_arch(size=32, value = 'Действующий', class='input') }}
+				{{ form.date.label }}
+                {{ form.date(size=32, value = time, class='input') }}
+				{{ form.paid.label }}
+                {{ form.paid(size=32, value = 1, class='input') }}
+				{{ form.submit(class='butt') }}
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

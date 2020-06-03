@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<br><br>
+<div class="container-md">
+    <div class="row head-wrap-wrap" style='margin-top: 10px'>
+        <div class="col-md-8">
+            <div class="row head-wrap">
+                <div class="col-md-1 test">ID</div>
+                <div class="col-md test">Номер</div>
+                <div class="col-md test">Статус</div>
+                <div class="col-md test">День списания</div>
+                <div class="col-md test">Опл. М</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row actions-wrap">
+                <div class="col-md-12 actions">
+                    <form class="search-wrap" action="" method="post" novalidate>
+                        {{search.hidden_tag()}}
+                        <div class="row">
+                            <div class="search col-md-10">{{search.search(placeholder='Поиск по договору')}}</div>
+                            <div class="col-md-2 button">{{search.go(value='', class='fa butt')}}</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% for contract in contracts %}
+    <div class="row contract-wrap-wrap">
+        <div class="col-md-8">
+            <div class="row contract-wrap">
+                <div class="col-md-1 contract">{{ contract.id }}</div>
+                <div class="col-md contract">{{ contract.number }}</div>
+                <div class="col-md contract">{{ contract.is_arch }}</div>
+                <div class="col-md contract">{{ contract.date[0] }}</div>
+                <div class="col-md contract">{{ contract.paid }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <form action="" method="post" novalidate>
+                <div class="row action-wrap">
+                    {{ set.hidden_tag() }}
+                    {{ set.id(value = contract.id) }}
+                    <div class="col-md-4 input">{{ set.paid(size=4, value=1) }}</div>
+                    <div class="col-md-4 input">{{ set.date(value=contract.date[0]) }}</div>
+                    <div class="col-md-4 button">
+                        {{ set.submit(value='', class='butt fa') }} {{ archive.add(value='', class='butt fa') }}
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<div class="search_bcg {{ bcg_stat4 }}">0</div>
+<div class="modal-search container-md {{status_active}}">
+    <div class="search-head row justify-content-between">
+        <div class="col-md results">Результаты поиска</div>
+        <div class="col-md close-top">
+            <form action="" method="post" novalidate>
+                {{ search_close.hidden_tag() }}
+                {{ search_close.close(value = 'Закрыть', class='close-top-btn') }}
+            </form>
+        </div>
+    </div>
+    <hr>
+    <div class="search-body row">
+
+
+        <div class="row contract-wrap-wrap search-contract">
+            <div class="col-md-8">
+                <div class="row contract-wrap">
+                    <div class="col-md-1 contract">{{ searched.id }}</div>
+                    <div class="col-md contract">{{ searched.number }}</div>
+                    <div class="col-md contract">{{ searched.is_arch }}</div>
+                    <div class="col-md contract">{{ searched.date }}</div>
+                    <div class="col-md contract">{{ searched.paid }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <form action="" method="post" novalidate>
+                    <div class="row action-wrap">
+                        {{ set.hidden_tag() }}
+                        {{ set.id(value = searched.id) }}
+                        <div class="col-md-4 input">{{ set.paid(size=4, value=1) }}</div>
+                        <div class="col-md-4 input">{{ set.date(value=searched.date) }}</div>
+                        <div class="col-md-4 button">
+                            {{ set.submit(value='', class='butt fa') }} {{ archive.add(value='', class='butt fa') }}
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock %}
