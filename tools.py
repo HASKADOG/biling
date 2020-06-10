@@ -1,6 +1,7 @@
 from app import db
-from app.models import Contract
+from app.models import Contract, Deals
 from flask import render_template, redirect, url_for, request
+
 
 def get_contracts(contract, type):
     contracts_all = []
@@ -37,8 +38,8 @@ def get_contracts(contract, type):
                 'paid': u.paid
             })
 
-
     return contracts_all
+
 
 def get_contracts_by_id(id):
     out = []
@@ -52,3 +53,41 @@ def get_contracts_by_id(id):
     })
     print(out)
     return out[0]
+
+
+def get_all_deals():
+    out = []
+    required = Deals.query.all()
+    for i in required:
+        if i.revert:
+            revert_status = 'reverted'
+        else:
+            revert_status = 'unreverted'
+
+        if i.deleted:
+            deleted_status = 'deleted'
+        else:
+            deleted_status = 'undeleted'
+
+        out.append({
+            'id': i.id,
+            'name': i.name,
+            'type': i.type,
+            'revert': revert_status,
+            'deleted': deleted_status
+        })
+    return (out)
+
+
+def get_non_deleted_deals():
+    out = []
+    required = Deals.query.all()
+    for i in required:
+        if i.deleted == False:
+            out.append({
+                'id': i.id,
+                'name': i.name,
+                'type': i.type,
+                'revert': i.revert
+            })
+    return (out)

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="container history_wrap">
+        {% for deal in deals %}
+            <div class="row history">
+                <div class="col-md-6 col name">{{ deal.name }}</div>
+                <div class="col-md-2 col additional">{{ deal.deleted }} | {{ deal.revert }}</div>
+                <div class="col-md-1 col-1 butt">
+
+                    <form action="" method="post" novalidate>
+                        {{ history_cancel.hidden_tag() }}
+                        {{ history_cancel.id(value=deal.id) }}
+                        {{ history_cancel.cancel(value='', class='buttt fa') }}
+                    </form>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% for deal in deals %}
+
+    {% endfor %}
+
+{% endblock %}

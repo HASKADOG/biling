@@ -1,21 +1,21 @@
 from app import app, db
 from flask import render_template, redirect, url_for, request
-from app.forms import Contract_add, Set_paid, Archive, Test_one, Test_two, History_cancel, History_clear, Search, Search_close
-from app.models import Contract
-from tools import get_contracts, get_contracts_by_id
+from app.forms import Contract_add, Set_paid, Archive, Test_one, Test_two, History_cancel, History_clear, Search, \
+    Search_close
+from app.models import Contract, Deals
+from tools import get_contracts, get_contracts_by_id, get_all_deals, get_non_deleted_deals
 import datetime
+
 
 # TODO
 # 1) Change the way to store day data
 # 2) Write the billing bot
 
-deals = []
-
 
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, World!"
+    return "It's a good day!"
 
 
 @app.route('/unpaid', methods=['GET', 'POST'])
@@ -26,7 +26,7 @@ def list():
     history_clear = History_clear()
     search = Search()
     search_close = Search_close()
-
+    deals = get_non_deleted_deals()
     searched = [{
         'id': 0,
         'number': 0,
@@ -43,12 +43,12 @@ def list():
 
     if set.validate_on_submit() and set.submit.data:
         old = Contract.query.get(set.id.data)
-        deals.append({'id': set.id.data,
-                      'name': str(old.number) + ' продлить на ' + str(set.paid.data) + ' с датой ' + str(set.date.data),
-                      'old_paid': old.paid, 'old_date': old.date, 'archived': '0'})
+        name_add = str(old.number) + ' продлить на ' + str(set.paid.data) + ' с датой ' + str(set.date.data)
+        add_deal = Deals(num=old.id, name=name_add, type='0', old_paid=old.paid, old_date=old.date, revert=False,
+                         deleted=False)
         to_change = Contract.query.filter_by(id=set.id.data).update({'paid': set.paid.data, 'date': set.date.data})
-
-        print(deals)
+        db.session.add(add_deal)
+        print('Deal type 0 has been added')
         db.session.commit()
 
         return redirect(url_for('list'))
@@ -57,48 +57,48 @@ def list():
         old = Contract.query.get(set.id.data)
         if old.is_arch == 'Действующий':
             to_changes = Contract.query.filter_by(id=set.id.data).update({'is_arch': 'В архиве'})
-            deals.append({'id': set.id.data,
-                          'name': str(old.number) + ' архивирован',
-                          'archived': 1})
+            name_add = str(old.number) + ' арихивирован'
+            add_deal = Deals(num=old.id, name=name_add, type='1', old_paid=old.paid, old_date=old.date, revert=False,
+                             deleted=False)
+            db.session.add(add_deal)
             db.session.commit()
             return redirect(url_for('list'))
+
         if old.is_arch == 'В архиве':
             to_changes = Contract.query.filter_by(id=set.id.data).update({'is_arch': 'Действующий'})
-            deals.append({'id': set.id.data,
-                          'name': str(old.number) + ' задействован',
-                          'archived': 2})
+            name_add = str(old.number) + ' задействован'
+            add_deal = Deals(num=old.id, name=name_add, type='2', old_paid=old.paid, old_date=old.date, revert=False,
+                             deleted=False)
+            db.session.add(add_deal)
             db.session.commit()
             return redirect(url_for('list'))
 
-    # history_form(history_clear, history_cancel, deals, Contract,'all')
-
     if history_clear.validate_on_submit() and history_clear.clear.data:
-        print('Deals have been cleared')
-        deals.clear()
+        for deal in deals:
+            change = Deals.query.filter_by(id=int(deal['id'])).update({'deleted': True})
+            db.session.commit()
+        return redirect(url_for('list'))
 
     if history_cancel.validate_on_submit and history_cancel.cancel.data:
         i = 0
-        for deal in deals:
-            if deal['id'] == history_cancel.id.data:
-                if deal['archived'] == 1:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'is_arch': 'Действующий'})
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('all'))
-                elif deal['archived'] == 2:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'is_arch': 'В архиве'})
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('all'))
-                else:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update(
-                        {'paid': deal['old_paid'], 'date': deal['old_date']})
-                    print(deal['old_paid'])
-                    print(deal['old_date'])
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('list'))
-            i += 1
+        deal = Deals.query.filter_by(id=int(history_cancel.id.data)).first()
+        contract_id = int(deal.num)
+        contract = Contract.query.get(contract_id)
+
+        if deal.type == 0:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'date': deal.old_date, 'paid': deal.old_paid})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        if deal.type == 1:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'Действющий'})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        if deal.type == 2:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'В архиве'})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        db.session.commit()
+        return redirect(url_for('list'))
 
     if search.validate_on_submit() and search.search.data:
         searched = get_contracts_by_id(search.search.data)
@@ -110,7 +110,8 @@ def list():
         bcg_stat = 'q'
 
     return render_template('unpaid.html', contracts=contracts, set=set, archive=archive, nav=nav,
-                           history_clear=history_clear, deals=deals, history_cancel=history_cancel, search = search, searched = searched, status_active = status_active, search_close = search_close, bcg_stat=bcg_stat)
+                           history_clear=history_clear, deals=deals, history_cancel=history_cancel, search=search,
+                           searched=searched, status_active=status_active, search_close=search_close, bcg_stat=bcg_stat)
 
 
 @app.route('/add-user', methods=['GET', 'POST'])
@@ -120,9 +121,11 @@ def add():
     nav = ['Добавить договор', [['Лист неоплативших', '/unpaid'], ['Архив', '/archive'], ['Все договоры', '/all']]]
     history_cancel = History_cancel()
     history_clear = History_clear()
+    deals = get_non_deleted_deals()
 
     if form.validate_on_submit():
-        contract = Contract(number=form.number.data, is_arch=form.is_arch.data, date=form.date.data, paid=form.paid.data)
+        contract = Contract(number=form.number.data, is_arch=form.is_arch.data, date=form.date.data,
+                            paid=form.paid.data)
         db.session.add(contract)
         db.session.commit()
         # return redirect(url_for('quiz_2'))
@@ -139,7 +142,7 @@ def archive():
     history_clear = History_clear()
     search = Search()
     search_close = Search_close()
-
+    deals = get_non_deleted_deals()
     searched = [{
         'id': 0,
         'number': 0,
@@ -157,12 +160,12 @@ def archive():
 
     if set.validate_on_submit() and set.submit.data:
         old = Contract.query.get(set.id.data)
-        deals.append({'id': set.id.data,
-                      'name': str(old.number) + ' продлить на ' + str(set.paid.data) + ' с датой ' + str(set.date.data),
-                      'old_paid': old.paid, 'old_date': old.date, 'archived': '0'})
+        name_add = str(old.number) + ' продлить на ' + str(set.paid.data) + ' с датой ' + str(set.date.data)
+        add_deal = Deals(num=old.id, name=name_add, type='0', old_paid=old.paid, old_date=old.date, revert=False,
+                         deleted=False)
         to_change = Contract.query.filter_by(id=set.id.data).update({'paid': set.paid.data, 'date': set.date.data})
-
-        print(deals)
+        db.session.add(add_deal)
+        print('Deal type 0 has been added')
         db.session.commit()
 
         return redirect(url_for('archive'))
@@ -171,48 +174,48 @@ def archive():
         old = Contract.query.get(set.id.data)
         if old.is_arch == 'Действующий':
             to_changes = Contract.query.filter_by(id=set.id.data).update({'is_arch': 'В архиве'})
-            deals.append({'id': set.id.data,
-                          'name': str(old.number) + ' архивирован',
-                          'archived': 1})
+            name_add = str(old.number) + ' арихивирован'
+            add_deal = Deals(num=old.id, name=name_add, type='1', old_paid=old.paid, old_date=old.date, revert=False,
+                             deleted=False)
+            db.session.add(add_deal)
             db.session.commit()
             return redirect(url_for('archive'))
+
         if old.is_arch == 'В архиве':
             to_changes = Contract.query.filter_by(id=set.id.data).update({'is_arch': 'Действующий'})
-            deals.append({'id': set.id.data,
-                          'name': str(old.number) + ' задействован',
-                          'archived': 2})
+            name_add = str(old.number) + ' задействован'
+            add_deal = Deals(num=old.id, name=name_add, type='2', old_paid=old.paid, old_date=old.date, revert=False,
+                             deleted=False)
+            db.session.add(add_deal)
             db.session.commit()
             return redirect(url_for('archive'))
 
-    # history_form(history_clear, history_cancel, deals, Contract,'all')
-
     if history_clear.validate_on_submit() and history_clear.clear.data:
-        print('Deals have been cleared')
-        deals.clear()
+        for deal in deals:
+            change = Deals.query.filter_by(id=int(deal['id'])).update({'deleted': True})
+            db.session.commit()
+        return redirect(url_for('archive'))
 
     if history_cancel.validate_on_submit and history_cancel.cancel.data:
         i = 0
-        for deal in deals:
-            if deal['id'] == history_cancel.id.data:
-                if deal['archived'] == 1:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'is_arch': 'Действующий'})
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('archive'))
-                elif deal['archived'] == 2:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'is_arch': 'В архиве'})
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('archive'))
-                else:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update(
-                        {'paid': deal['old_paid'], 'date': deal['old_date']})
-                    print(deal['old_paid'])
-                    print(deal['old_date'])
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('archive'))
-            i += 1
+        deal = Deals.query.filter_by(id=int(history_cancel.id.data)).first()
+        contract_id = int(deal.num)
+        contract = Contract.query.get(contract_id)
+
+        if deal.type == 0:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'date': deal.old_date, 'paid': deal.old_paid})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        if deal.type == 1:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'Действющий'})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        if deal.type == 2:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'В архиве'})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        db.session.commit()
+        return redirect(url_for('archive'))
 
     if search.validate_on_submit() and search.search.data:
         searched = get_contracts_by_id(search.search.data)
@@ -224,7 +227,8 @@ def archive():
         bcg_stat = 'q'
 
     return render_template('unpaid.html', contracts=contracts, set=set, archive=archive, nav=nav,
-                           history_clear=history_clear, deals=deals, history_cancel=history_cancel, search = search, searched = searched, status_active = status_active, search_close = search_close, bcg_stat=bcg_stat)
+                           history_clear=history_clear, deals=deals, history_cancel=history_cancel, search=search,
+                           searched=searched, status_active=status_active, search_close=search_close, bcg_stat=bcg_stat)
 
 
 @app.route('/all', methods=['GET', 'POST'])
@@ -235,8 +239,10 @@ def all():
     history_clear = History_clear()
     search = Search()
     search_close = Search_close()
+    deals = get_non_deleted_deals()
 
-    nav = ['Все договоры', [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Лист неоплативших', '/unpaid']]]
+    nav = ['Все договоры', [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Лист неоплативших', '/unpaid'],
+                            ['История', '/history']]]
     searched = [{
         'id': 0,
         'number': 0,
@@ -244,6 +250,7 @@ def all():
         'date': 0,
         'paid': 0
     }]
+
     status_active = ''
     bcg_stat = ''
     contracts = get_contracts(Contract, 'all')
@@ -251,12 +258,12 @@ def all():
 
     if set.validate_on_submit() and set.submit.data:
         old = Contract.query.get(set.id.data)
-        deals.append({'id': set.id.data,
-                      'name': str(old.number) + ' продлить на ' + str(set.paid.data) + ' с датой ' + str(set.date.data),
-                      'old_paid': old.paid, 'old_date': old.date, 'archived': '0'})
+        name_add = str(old.number) + ' продлить на ' + str(set.paid.data) + ' с датой ' + str(set.date.data)
+        add_deal = Deals(num=old.id, name=name_add, type='0', old_paid=old.paid, old_date=old.date, revert=False,
+                         deleted=False)
         to_change = Contract.query.filter_by(id=set.id.data).update({'paid': set.paid.data, 'date': set.date.data})
-
-        print(deals)
+        db.session.add(add_deal)
+        print('Deal type 0 has been added')
         db.session.commit()
 
         return redirect(url_for('all'))
@@ -265,45 +272,48 @@ def all():
         old = Contract.query.get(set.id.data)
         if old.is_arch == 'Действующий':
             to_changes = Contract.query.filter_by(id=set.id.data).update({'is_arch': 'В архиве'})
-            deals.append({'id': set.id.data,
-                          'name': str(old.number) + ' архивирован',
-                          'archived': 1})
+            name_add = str(old.number) + ' арихивирован'
+            add_deal = Deals(num=old.id, name=name_add, type='1', old_paid=old.paid, old_date=old.date, revert=False,
+                             deleted=False)
+            db.session.add(add_deal)
             db.session.commit()
             return redirect(url_for('all'))
+
         if old.is_arch == 'В архиве':
             to_changes = Contract.query.filter_by(id=set.id.data).update({'is_arch': 'Действующий'})
-            deals.append({'id': set.id.data,
-                          'name': str(old.number) + ' задействован',
-                          'archived': 2})
+            name_add = str(old.number) + ' задействован'
+            add_deal = Deals(num=old.id, name=name_add, type='2', old_paid=old.paid, old_date=old.date, revert=False,
+                             deleted=False)
+            db.session.add(add_deal)
             db.session.commit()
             return redirect(url_for('all'))
 
     if history_clear.validate_on_submit() and history_clear.clear.data:
-        print('Deals have been cleared')
-        deals.clear()
+        for deal in deals:
+            change = Deals.query.filter_by(id=int(deal['id'])).update({'deleted': True})
+            db.session.commit()
+        return redirect(url_for('all'))
 
     if history_cancel.validate_on_submit and history_cancel.cancel.data:
         i = 0
-        for deal in deals:
-            if deal['id'] == history_cancel.id.data:
-                if deal['archived'] == 1:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'is_arch': 'Действующий'})
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('all'))
-                elif deal['archived'] == 2:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'is_arch': 'В архиве'})
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('all'))
-                else:
-                    to_changes = Contract.query.filter_by(id=deal['id']).update({'paid': deal['old_paid'], 'date': deal['old_date']})
-                    print(deal['old_paid'])
-                    print(deal['old_date'])
-                    db.session.commit()
-                    deals.pop(i)
-                    return redirect(url_for('all'))
-            i += 1
+        deal = Deals.query.filter_by(id=int(history_cancel.id.data)).first()
+        contract_id = int(deal.num)
+        contract = Contract.query.get(contract_id)
+
+        if deal.type == 0:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'date': deal.old_date, 'paid': deal.old_paid})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        if deal.type == 1:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'Действющий'})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        if deal.type == 2:
+            backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'В архиве'})
+            deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+        db.session.commit()
+        return redirect(url_for('all'))
 
     if search.validate_on_submit() and search.search.data:
         searched = get_contracts_by_id(search.search.data)
@@ -315,19 +325,39 @@ def all():
         bcg_stat = 'q'
 
     return render_template('unpaid.html', contracts=contracts, set=set, archive=archive, nav=nav,
-                           history_clear=history_clear, deals=deals, history_cancel=history_cancel, search = search, searched = searched, status_active = status_active, search_close = search_close, bcg_stat=bcg_stat)
+                           history_clear=history_clear, deals=deals, history_cancel=history_cancel, search=search,
+                           searched=searched, status_active=status_active, search_close=search_close, bcg_stat=bcg_stat)
 
 
-@app.route('/test', methods=['GET', 'POST'])
-def test():
-    test_one = Test_one()
-    test_two = Test_two()
-    nav = ['Архив', [['Лист неоплативших', '/unpaid'], ['Добавить договор', '/add-user']]]
+@app.route('/history', methods=['GET', 'POST'])
+def history():
+    history_cancel = History_cancel()
+    history_clear = History_clear()
+    deals = get_all_deals()
+    nav = ['История', [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Лист неоплативших', '/unpaid'],
+                            ['Все договоры', '/all']]]
+    if history_clear.validate_on_submit():
+        if history_cancel.validate_on_submit and history_cancel.cancel.data:
+            i = 0
+            deal = Deals.query.filter_by(id=int(history_cancel.id.data)).first()
+            contract_id = int(deal.num)
+            contract = Contract.query.get(contract_id)
 
-    if test_one.validate_on_submit() and test_one.add.data:
-        print('one')
+            if deal.type == 0:
+                backed_up = Contract.query.filter_by(id=contract_id).update(
+                    {'date': deal.old_date, 'paid': deal.old_paid})
+                deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
 
-    if test_two.validate_on_submit() and test_two.sub.data:
-        print('two')
+            if deal.type == 1:
+                backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'Действющий'})
+                deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
 
-    return render_template('test.html', test_one=test_one, test_two=test_two, nav=nav)
+            if deal.type == 2:
+                backed_up = Contract.query.filter_by(id=contract_id).update({'is_arch': 'В архиве'})
+                deleted_deal = Deals.query.filter_by(id=int(deal.id)).update({'deleted': True, 'revert': True})
+
+            db.session.commit()
+            return redirect(url_for('history'))
+
+
+    return render_template('history.html', deals=deals, nav=nav, history_clear=history_clear, history_cancel=history_cancel)

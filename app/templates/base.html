@@ -2,7 +2,7 @@
 <head>
     <title>{{nav[0]}}</title>
 
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
@@ -42,14 +42,14 @@
     <div class="heading">
         <div class="container">
             <div class="row">
-                <div class="col-md block-name">История действий</div>
-                <div class="col-md-1 clear-btn">
+                <div class="col-md col block-name">История действий</div>
+                <div class="col-md-1 col-1 clear-btn">
                     <form action="" method="post" novalidate>
                         {{ history_clear.hidden_tag() }}
                         {{ history_clear.clear(value='', class='fa broom') }}
                     </form>
                 </div>
-                <div class="col-md-1 hide-btn"><i class="fas fa-times hideo"></i></div>
+                <div class="col-md-1 col-1 hide-btn"><i class="fas fa-times hideo"></i></div>
             </div>
         </div>
     </div>
@@ -57,8 +57,8 @@
         <div class="container">
             {% for deal in deals %}
             <div class="row done">
-                <div class="col-md done-name">{{ deal.name }}</div>
-                <div class="col-md-3 cancel">
+                <div class="col-md col done-name">{{ deal.name }}</div>
+                <div class="col-md-3 col-3 cancel">
                     <form action="" method="post" novalidate>
                         {{ history_cancel.hidden_tag() }}
                         {{ history_cancel.id(value=deal.id) }}
