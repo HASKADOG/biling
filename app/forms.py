@@ -38,3 +38,7 @@ class Search(FlaskForm):
 
 class Search_close(FlaskForm):
     close = SubmitField('')
+
+class Delete_contract(FlaskForm):
+    idd = IntegerField('')
+    delete = SubmitField('')

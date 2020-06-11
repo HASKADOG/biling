@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container delete_wrap">
+
+     <form action="" method="post" novalidate class="'delete_form">
+         {{ delete_contract.hidden_tag() }}
+         <div class="row dell">
+            <div class="col-9 delete_row">{{ delete_contract.idd(placeholder="id") }}</div>
+            <div class="col-3 delete_butt">{{ delete_contract.delete(value='', class='buttt fa') }}
+        </div>
+        </div>
+     </form>
+    </div>
+
+{% endblock %}

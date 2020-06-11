@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, redirect, url_for, request
 from app.forms import Contract_add, Set_paid, Archive, Test_one, Test_two, History_cancel, History_clear, Search, \
-    Search_close
+    Search_close, Delete_contract
 from app.models import Contract, Deals
 from tools import get_contracts, get_contracts_by_id, get_all_deals, get_non_deleted_deals
 import datetime
@@ -15,7 +15,7 @@ import datetime
 @app.route('/')
 @app.route('/index')
 def index():
-    return "It's a good day!"
+    return "404 NOT FOUND"
 
 
 @app.route('/unpaid', methods=['GET', 'POST'])
@@ -37,7 +37,9 @@ def list():
     status_active = ''
     bcg_stat = ''
 
-    nav = ['Лист неоплативших', [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Все договоры', '/all']]]
+    nav = ['Лист неоплативших',
+           [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Все договоры', '/all'], ['История', '/history'],
+            ['Удалить контракт', '/delete']]]
     contracts = get_contracts(Contract, 'unpaid')
     print(contracts)
 
@@ -118,7 +120,9 @@ def list():
 def add():
     form = Contract_add()
     time = str(datetime.datetime.today()).split(' ')[0].split('-')
-    nav = ['Добавить договор', [['Лист неоплативших', '/unpaid'], ['Архив', '/archive'], ['Все договоры', '/all']]]
+    nav = ['Добавить договор',
+           [['Лист неоплативших', '/unpaid'], ['Архив', '/archive'], ['Все договоры', '/all'], ['История', '/history'],
+            ['Удалить контракт', '/delete']]]
     history_cancel = History_cancel()
     history_clear = History_clear()
     deals = get_non_deleted_deals()
@@ -153,7 +157,8 @@ def archive():
     status_active = ''
     bcg_stat = ''
 
-    nav = ['Архив', [['Лист неоплативших', '/unpaid'], ['Добавить договор', '/add-user'], ['Все договоры', '/all']]]
+    nav = ['Архив', [['Лист неоплативших', '/unpaid'], ['Добавить договор', '/add-user'], ['Все договоры', '/all'],
+                     ['История', '/history'], ['Удалить контракт', '/delete']]]
 
     contracts = get_contracts(Contract, 'archive')
     print(contracts)
@@ -242,7 +247,7 @@ def all():
     deals = get_non_deleted_deals()
 
     nav = ['Все договоры', [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Лист неоплативших', '/unpaid'],
-                            ['История', '/history']]]
+                            ['История', '/history'], ['Удалить контракт', '/delete']]]
     searched = [{
         'id': 0,
         'number': 0,
@@ -335,7 +340,7 @@ def history():
     history_clear = History_clear()
     deals = get_all_deals()
     nav = ['История', [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Лист неоплативших', '/unpaid'],
-                            ['Все договоры', '/all']]]
+                       ['Все договоры', '/all'], ['Удалить контракт', '/delete']]]
     if history_clear.validate_on_submit():
         if history_cancel.validate_on_submit and history_cancel.cancel.data:
             i = 0
@@ -359,5 +364,25 @@ def history():
             db.session.commit()
             return redirect(url_for('history'))
 
+    return render_template('history.html', deals=deals, nav=nav, history_clear=history_clear,
+                           history_cancel=history_cancel)
 
-    return render_template('history.html', deals=deals, nav=nav, history_clear=history_clear, history_cancel=history_cancel)
+
+@app.route('/delete', methods=['GET', 'POST'])
+def delete():
+    history_cancel = History_cancel()
+    history_clear = History_clear()
+    delete_contract = Delete_contract()
+    deals = get_non_deleted_deals()
+
+    nav = [' Удалить контракт',
+           [['Архив', '/archive'], ['Добавить договор', '/add-user'], ['Лист неоплативших', '/unpaid'],
+            ['Все договоры', '/all'], ['История', '/history']]]
+
+    if delete_contract.validate_on_submit():
+        delete = Contract.query.filter_by(id=int(delete_contract.idd.data)).delete()
+        db.session.commit()
+        print('deleted')
+
+    return render_template('delete.html', deals=deals, nav=nav, history_clear=history_clear,
+                           history_cancel=history_cancel, delete_contract=delete_contract)
