@@ -11,15 +11,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bb65757d-ce90-4478-a6fe-2fd2de10e1f3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/templates/delete.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.db" beforeDir="false" afterPath="$PROJECT_DIR$/app.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/routes.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/css/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/static/css/style.css.map" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/css/style.css.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/static/css/style.sass" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/css/style.sass" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/unpaid.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/unpaid.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/add-user.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/add-user.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +136,8 @@
       <workItem from="1591817375548" duration="7014000" />
       <workItem from="1591874371812" duration="235000" />
       <workItem from="1591874738237" duration="857000" />
-      <workItem from="1591903822824" duration="3920000" />
+      <workItem from="1591903822824" duration="5165000" />
+      <workItem from="1592491591400" duration="1470000" />
     </task>
     <task id="LOCAL-00001" summary="229">
       <created>1591190701524</created>
@@ -161,7 +160,14 @@
       <option name="project" value="LOCAL" />
       <updated>1591768395323</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="lat">
+      <created>1591918639078</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1591918639078</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -185,7 +191,8 @@
     <MESSAGE value="229" />
     <MESSAGE value="230" />
     <MESSAGE value="done!!! final!!!" />
-    <option name="LAST_COMMIT_MESSAGE" value="done!!! final!!!" />
+    <MESSAGE value="lat" />
+    <option name="LAST_COMMIT_MESSAGE" value="lat" />
   </component>
   <component name="WindowStateProjectService">
     <state x="557" y="189" width="816" height="668" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1591874988987">
@@ -206,26 +213,26 @@
     </state>
     <state x="743" y="311" width="424" height="491" key="FileChooserDialogImpl/0.27.1920.1053@0.27.1920.1053" timestamp="1590847893242" />
     <state x="991" y="291" width="424" height="485" key="FileChooserDialogImpl/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591369061945" />
-    <state width="1278" height="759" key="GridCell.Tab.0.bottom" timestamp="1591917207229">
+    <state width="1278" height="759" key="GridCell.Tab.0.bottom" timestamp="1591917259966">
       <screen x="0" y="0" width="2560" height="1080" />
     </state>
     <state width="1128" height="864" key="GridCell.Tab.0.bottom/0.27.1920.1053@0.27.1920.1053" timestamp="1591768314889" />
-    <state width="1278" height="759" key="GridCell.Tab.0.bottom/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917207229" />
-    <state width="1278" height="759" key="GridCell.Tab.0.center" timestamp="1591917207229">
+    <state width="1278" height="759" key="GridCell.Tab.0.bottom/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917259966" />
+    <state width="1278" height="759" key="GridCell.Tab.0.center" timestamp="1591917259966">
       <screen x="0" y="0" width="2560" height="1080" />
     </state>
     <state width="1128" height="864" key="GridCell.Tab.0.center/0.27.1920.1053@0.27.1920.1053" timestamp="1591768314888" />
-    <state width="1278" height="759" key="GridCell.Tab.0.center/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917207229" />
-    <state width="1278" height="759" key="GridCell.Tab.0.left" timestamp="1591917207229">
+    <state width="1278" height="759" key="GridCell.Tab.0.center/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917259966" />
+    <state width="1278" height="759" key="GridCell.Tab.0.left" timestamp="1591917259966">
       <screen x="0" y="0" width="2560" height="1080" />
     </state>
     <state width="1128" height="864" key="GridCell.Tab.0.left/0.27.1920.1053@0.27.1920.1053" timestamp="1591768314887" />
-    <state width="1278" height="759" key="GridCell.Tab.0.left/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917207229" />
-    <state width="1278" height="759" key="GridCell.Tab.0.right" timestamp="1591917207229">
+    <state width="1278" height="759" key="GridCell.Tab.0.left/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917259966" />
+    <state width="1278" height="759" key="GridCell.Tab.0.right" timestamp="1591917259966">
       <screen x="0" y="0" width="2560" height="1080" />
     </state>
     <state width="1128" height="864" key="GridCell.Tab.0.right/0.27.1920.1053@0.27.1920.1053" timestamp="1591768314889" />
-    <state width="1278" height="759" key="GridCell.Tab.0.right/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917207229" />
+    <state width="1278" height="759" key="GridCell.Tab.0.right/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591917259966" />
     <state width="2512" height="347" key="GridCell.Tab.1.bottom" timestamp="1591916135341">
       <screen x="0" y="0" width="2560" height="1080" />
     </state>
@@ -247,11 +254,11 @@
     </state>
     <state x="449" y="188" width="1022" height="737" key="SettingsEditor/0.27.1920.1053@0.27.1920.1053" timestamp="1591756201746" />
     <state x="599" y="165" width="1022" height="737" key="SettingsEditor/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591820579504" />
-    <state x="656" y="296" width="800" height="529" key="Vcs.Push.Dialog.v2" timestamp="1591768410519">
-      <screen x="0" y="27" width="1920" height="1053" />
+    <state x="875" y="276" width="800" height="529" key="Vcs.Push.Dialog.v2" timestamp="1591918648890">
+      <screen x="0" y="0" width="2560" height="1080" />
     </state>
     <state x="656" y="296" key="Vcs.Push.Dialog.v2/0.27.1920.1053@0.27.1920.1053" timestamp="1591768410519" />
-    <state x="875" y="276" width="800" height="529" key="Vcs.Push.Dialog.v2/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591190883643" />
+    <state x="875" y="276" width="800" height="529" key="Vcs.Push.Dialog.v2/309.1080.1920.1080/0.0.2560.1080@0.0.2560.1080" timestamp="1591918648890" />
     <state x="1134" y="257" width="282" height="567" key="com.intellij.openapi.vcs.changes.SpecificFilesViewDialog" timestamp="1591190823981">
       <screen x="0" y="0" width="2560" height="1080" />
     </state>
@@ -268,6 +275,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/billing$webapp.coverage" NAME="webapp Coverage Results" MODIFIED="1590847621645" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/venv/bin" />
     <SUITE FILE_PATH="coverage/billing$billing.coverage" NAME="billing Coverage Results" MODIFIED="1590695194808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/billing$web.coverage" NAME="web Coverage Results" MODIFIED="1591917259960" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/venv/bin" />
+    <SUITE FILE_PATH="coverage/billing$web.coverage" NAME="web Coverage Results" MODIFIED="1592491720777" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/venv/bin" />
   </component>
 </project>

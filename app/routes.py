@@ -134,7 +134,7 @@ def add():
         db.session.commit()
         # return redirect(url_for('quiz_2'))
         print(form.data)
-    return render_template('add-user.html', form=form, time=time[2], nav=nav,
+    return render_template('add-user.html', form=form, time=1, nav=nav,
                            history_clear=history_clear, deals=deals, history_cancel=history_cancel)
 
 
